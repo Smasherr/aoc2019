@@ -1,39 +1,6 @@
-package main
+package aoc2019
 
-import (
-	"fmt"
-	"testing"
-)
-
-func TestOpcode(t *testing.T) {
-	example1 := []int{1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50}
-	AssertEqual(t, []int{3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50}, ProcessOpcode(example1))
-
-	example2 := []int{1, 0, 0, 0, 99}
-	AssertEqual(t, []int{2, 0, 0, 0, 99}, ProcessOpcode(example2))
-
-	example3 := []int{2, 3, 0, 3, 99}
-	AssertEqual(t, []int{2, 3, 0, 6, 99}, ProcessOpcode(example3))
-
-	example4 := []int{2, 4, 4, 5, 99, 0}
-	AssertEqual(t, []int{2, 4, 4, 5, 99, 9801}, ProcessOpcode(example4))
-
-	example5 := []int{1, 1, 1, 4, 99, 5, 6, 0, 99}
-	AssertEqual(t, []int{30, 1, 1, 4, 2, 5, 6, 0, 99}, ProcessOpcode(example5))
-}
-
-func AssertEqual(t *testing.T, a, b []int) {
-	if len(a) != len(b) {
-		t.Error("lengths don't match")
-		return
-	}
-	for i, v := range a {
-		if v != b[i] {
-			t.Errorf("%d != %d at index %d", v, b[i], i)
-			return
-		}
-	}
-}
+import "fmt"
 
 func ProcessOpcode(input []int) []int {
 	step := 0
@@ -56,7 +23,7 @@ func ProcessOpcode(input []int) []int {
 	return input
 }
 
-func TestMain2(*testing.T) {
+func main2() {
 	input := []int{1, 0, 0, 3,
 		1, 1, 2, 3,
 		1, 3, 4, 3,

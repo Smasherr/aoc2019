@@ -2,7 +2,10 @@ package aoc2019
 
 import (
 	"bufio"
+	"math"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -32,4 +35,22 @@ func AssertEqual(t *testing.T, a, b []int) {
 			return
 		}
 	}
+}
+
+func PasswordIntToIntArr(i int) []int {
+	arr := make([]int, 6)
+	split := strings.Split(strconv.Itoa(i), "")
+	for k := 0; k < 6; k++ {
+		arr[k], _ = strconv.Atoi(split[k])
+	}
+	return arr
+}
+
+func InstructionIntToIntArr(i int) []int {
+	arr := make([]int, 4)
+	arr[0] = (i % 100)
+	for k := 2; k < 5; k++ {
+		arr[k-1] = (i / int(math.Pow10(k))) % 10
+	}
+	return arr
 }

@@ -2,8 +2,6 @@ package aoc2019
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 func Main4() {
@@ -13,7 +11,7 @@ func Main4() {
 func CountValidPasswords(start int, end int) (int, int) {
 	count1, count2 := 0, 0
 	for i := start; i <= end; i++ {
-		passArray := IntToIntArr(i)
+		passArray := PasswordIntToIntArr(i)
 		if IsValidPassword1(passArray) {
 			count1++
 			if IsValidPassword2(passArray) {
@@ -58,13 +56,4 @@ func IsValidPassword2(password []int) bool {
 		}
 	}
 	return fullfillsAdjRule
-}
-
-func IntToIntArr(i int) []int {
-	arr := make([]int, 6)
-	split := strings.Split(strconv.Itoa(i), "")
-	for k := 0; k < 6; k++ {
-		arr[k], _ = strconv.Atoi(split[k])
-	}
-	return arr
 }

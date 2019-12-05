@@ -12,7 +12,7 @@ import (
 type Static1Reader struct{}
 
 func (sw Static1Reader) Read(data []byte) (int, error) {
-	data[0] = 0x31
+	data[0] = 0x35
 	return 1, io.EOF
 }
 
@@ -50,6 +50,34 @@ func ProcessInstructions(input []int, in io.Reader, out io.Writer) []int {
 			step = 2
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			fmt.Fprintln(out, input[instruction[1]])
+		case 5:
+			step = 2
+			ProcessParameterModes(&input, &instruction, step-1, i)
+			if input[instruction[1]] != 0 {
+				step = input[instruction[2]] - i
+			}
+		case 6:
+			step = 2
+			ProcessParameterModes(&input, &instruction, step-1, i)
+			if input[instruction[1]] == 0 {
+				step = input[instruction[2]] - i
+			}
+		case 7:
+			step = 3
+			ProcessParameterModes(&input, &instruction, step-1, i)
+			if input[instruction[1]] < input[instruction[2]] {
+				input[instruction[3]] = 1
+			} else {
+				input[instruction[3]] = 0
+			}
+		case 8:
+			step = 3
+			ProcessParameterModes(&input, &instruction, step-1, i)
+			if input[instruction[1]] == input[instruction[2]] {
+				input[instruction[3]] = 1
+			} else {
+				input[instruction[3]] = 0
+			}
 		case 99:
 			step = 1
 			return input

@@ -51,19 +51,19 @@ func ProcessInstructions(input []int, in io.Reader, out io.Writer) []int {
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			fmt.Fprintln(out, input[instruction[1]])
 		case 5:
-			step = 2
+			step = 3
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			if input[instruction[1]] != 0 {
 				step = input[instruction[2]] - i
 			}
 		case 6:
-			step = 2
+			step = 3
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			if input[instruction[1]] == 0 {
 				step = input[instruction[2]] - i
 			}
 		case 7:
-			step = 3
+			step = 4
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			if input[instruction[1]] < input[instruction[2]] {
 				input[instruction[3]] = 1
@@ -71,7 +71,7 @@ func ProcessInstructions(input []int, in io.Reader, out io.Writer) []int {
 				input[instruction[3]] = 0
 			}
 		case 8:
-			step = 3
+			step = 4
 			ProcessParameterModes(&input, &instruction, step-1, i)
 			if input[instruction[1]] == input[instruction[2]] {
 				input[instruction[3]] = 1

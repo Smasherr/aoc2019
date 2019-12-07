@@ -9,13 +9,6 @@ import (
 	"strings"
 )
 
-type Static1Reader struct{}
-
-func (sw Static1Reader) Read(data []byte) (int, error) {
-	data[0] = 0x35
-	return 1, io.EOF
-}
-
 func Main5() {
 	inputText, _ := ReadLines("../../res/05_test_diagnostics.txt")
 	inputText = strings.Split(inputText[0], ",")
@@ -24,7 +17,7 @@ func Main5() {
 		value, _ := strconv.Atoi(inputText[i])
 		input[i] = value
 	}
-	ProcessInstructions(input, Static1Reader{}, os.Stdout)
+	ProcessInstructions(input, NewStaticReader([]int{1}), os.Stdout)
 }
 
 func ProcessInstructions(input []int, in io.Reader, out io.Writer) []int {

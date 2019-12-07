@@ -2,6 +2,7 @@ package aoc2019
 
 import (
 	"bufio"
+	"io"
 	"math"
 	"os"
 	"strconv"
@@ -53,4 +54,21 @@ func InstructionIntToIntArr(i int) []int {
 		arr[k-1] = (i / int(math.Pow10(k))) % 10
 	}
 	return arr
+}
+
+type StaticReader struct {
+	value []int
+	ctr   int
+}
+
+func NewStaticReader(value []int) StaticReader {
+	sr := StaticReader{value: value}
+	sr.ctr = 0
+	return sr
+}
+
+func (sr StaticReader) Read(data []byte) (int, error) {
+	b := []byte(strconv.Itoa(sr.value[sr.ctr]))
+	sr.ctr++
+	return copy(data, b), io.EOF
 }

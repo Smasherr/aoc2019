@@ -54,5 +54,6 @@ func TestCalculateNumberOfOrbits(t *testing.T) {
 	testobjects[10][0] = "E"
 	testobjects[10][1] = "F"
 
-	assert.EqualValues(t, 42, aoc2019.CalculateNumberOfOrbits(testobjects))
+	o, _ := aoc2019.Calculate(testobjects)
+	assert.EqualValues(t, 42, o)
 }

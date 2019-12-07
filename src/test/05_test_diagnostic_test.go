@@ -26,6 +26,6 @@ func TestProcessInstructions(t *testing.T) {
 	example5 := []int{3, 0, 4, 0, 99}
 	reader := aoc2019.NewStaticReader([]int{999})
 	var buf bytes.Buffer
-	aoc2019.ProcessInstructions(example5, reader, &buf)
+	aoc2019.ProcessInstructions(example5, &reader, &buf)
 	assert.EqualValues(t, "999", strings.TrimSpace(buf.String()))
 }

@@ -6,18 +6,12 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"strings"
 )
 
 func Main5() {
-	inputText, _ := ReadLines("../../res/05_test_diagnostics.txt")
-	inputText = strings.Split(inputText[0], ",")
-	input := make([]int, len(inputText))
-	for i := 0; i < len(inputText); i++ {
-		value, _ := strconv.Atoi(inputText[i])
-		input[i] = value
-	}
-	ProcessInstructions(input, NewStaticReader([]int{1}), os.Stdout)
+	input := ReadProgram("../../res/05_test_diagnostics.txt")
+	sr := NewStaticReader([]int{1})
+	ProcessInstructions(input, &sr, os.Stdout)
 }
 
 func ProcessInstructions(input []int, in io.Reader, out io.Writer) []int {

@@ -56,6 +56,17 @@ func InstructionIntToIntArr(i int) []int {
 	return arr
 }
 
+func ReadProgram(path string) []int {
+	inputText, _ := ReadLines(path)
+	inputText = strings.Split(inputText[0], ",")
+	toRet := make([]int, len(inputText))
+	for i := 0; i < len(inputText); i++ {
+		value, _ := strconv.Atoi(inputText[i])
+		toRet[i] = value
+	}
+	return toRet
+}
+
 type StaticReader struct {
 	value []int
 	ctr   int
@@ -67,8 +78,8 @@ func NewStaticReader(value []int) StaticReader {
 	return sr
 }
 
-func (sr StaticReader) Read(data []byte) (int, error) {
-	b := []byte(strconv.Itoa(sr.value[sr.ctr]))
-	sr.ctr++
+func (sr *StaticReader) Read(data []byte) (int, error) {
+	b := []byte(strconv.Itoa((*sr).value[sr.ctr]))
+	(*sr).ctr++
 	return copy(data, b), io.EOF
 }

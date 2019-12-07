@@ -1,15 +1,16 @@
 package aoc2019
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func Main7() {
 	input := ReadProgram("../../res/07_thrusters.txt")
-	fmt.Println(CalculateMaxThrusterSignal(input))
+	fmt.Println(CalculateMaxThrusterSignal(input, 1))
+	fmt.Println(CalculateMaxThrusterSignal(input, 2))
 }
 
 func contains(s []int, e int) bool {
@@ -21,17 +22,17 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-func CalculateMaxThrusterSignal(input []int) (int, []int) {
+func CalculateMaxThrusterSignal(input []int, mode int) (int, []int) {
 	max := 0
 	var mp []int
-	for i := 0; i <= 44444; i++ {
+	for i := 0; i <= 99999; i++ {
 		s := fmt.Sprintf("%05d", i)
 		split := strings.Split(s, "")
 		phases := make([]int, 5)
 		invalid := false
 		for k := 0; k < 5; k++ {
 			phase, _ := strconv.Atoi(split[k])
-			if phase > 4 || contains(phases[:k], phase) {
+			if (mode == 1 && phase > 4) || (mode == 2 && phase < 5) || contains(phases[:k], phase) {
 				invalid = true
 				break
 			}
@@ -50,12 +51,22 @@ func CalculateMaxThrusterSignal(input []int) (int, []int) {
 }
 
 func CalculateThrusterSignal(i []int, p []int) int {
-	toRet := 0
+	rw := make([]ReaderWriter, 5)
 	for k := 0; k < 5; k++ {
-		sw := NewStaticReader([]int{p[k], toRet})
-		var buf bytes.Buffer
-		ProcessInstructions(i, &sw, &buf)
-		toRet, _ = strconv.Atoi(strings.TrimSpace(buf.String()))
+		rw[k] = NewReaderWriter([]int{p[k]})
+		rw[k].Name = fmt.Sprintf("Amplifier %d", k)
 	}
-	return toRet
+	rw[0].Ch <- 0
+	var wg sync.WaitGroup
+	wg.Add(5)
+	for k := 0; k < 5; k++ {
+		go func(l int) {
+			ic := make([]int, len(i))
+			copy(ic, i)
+			ProcessInstructions(ic, &rw[l], &rw[(l+1)%5])
+			wg.Done()
+		}(k)
+	}
+	wg.Wait()
+	return <-rw[0].Ch
 }

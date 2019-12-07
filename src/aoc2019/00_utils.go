@@ -2,7 +2,6 @@ package aoc2019
 
 import (
 	"bufio"
-	"io"
 	"math"
 	"os"
 	"strconv"
@@ -67,19 +66,28 @@ func ReadProgram(path string) []int {
 	return toRet
 }
 
-type StaticReader struct {
-	value []int
-	ctr   int
+type ReaderWriter struct {
+	Name string
+	Ch   chan int
 }
 
-func NewStaticReader(value []int) StaticReader {
-	sr := StaticReader{value: value}
-	sr.ctr = 0
-	return sr
+func NewReaderWriter(init []int) ReaderWriter {
+	rw := ReaderWriter{Ch: make(chan int, 100)}
+	for _, v := range init {
+		rw.Ch <- v
+	}
+	return rw
 }
 
-func (sr *StaticReader) Read(data []byte) (int, error) {
-	b := []byte(strconv.Itoa((*sr).value[sr.ctr]))
-	(*sr).ctr++
-	return copy(data, b), io.EOF
+func (rw *ReaderWriter) Read(data []byte) (int, error) {
+	val := <-rw.Ch
+	b := []byte(strconv.Itoa(val))
+	b = append(b, '\n')
+	return copy(data, b), nil
+}
+
+func (rw *ReaderWriter) Write(data []byte) (int, error) {
+	val, _ := strconv.Atoi(strings.TrimSpace(string(data)))
+	rw.Ch <- val
+	return len(data), nil
 }

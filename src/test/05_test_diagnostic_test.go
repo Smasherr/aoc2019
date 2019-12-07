@@ -1,9 +1,7 @@
 package test
 
 import (
-	"bytes"
 	"os"
-	"strings"
 	"testing"
 
 	"../aoc2019"
@@ -24,8 +22,8 @@ func TestProcessInstructions(t *testing.T) {
 	aoc2019.AssertEqual(t, []int{2, 4, 4, 5, 99, 9801}, aoc2019.ProcessInstructions(example4, os.Stdin, os.Stdout))
 
 	example5 := []int{3, 0, 4, 0, 99}
-	reader := aoc2019.NewStaticReader([]int{999})
-	var buf bytes.Buffer
-	aoc2019.ProcessInstructions(example5, &reader, &buf)
-	assert.EqualValues(t, "999", strings.TrimSpace(buf.String()))
+	rw := aoc2019.NewReaderWriter([]int{999})
+	aoc2019.ProcessInstructions(example5, &rw, &rw)
+	o := <-rw.Ch
+	assert.EqualValues(t, 999, o)
 }

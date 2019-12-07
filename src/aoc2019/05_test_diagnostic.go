@@ -10,7 +10,7 @@ import (
 
 func Main5() {
 	input := ReadProgram("../../res/05_test_diagnostics.txt")
-	sr := NewStaticReader([]int{1})
+	sr := NewReaderWriter([]int{1})
 	ProcessInstructions(input, &sr, os.Stdout)
 }
 

@@ -50,7 +50,7 @@ func CalculateMaxThrusterSignal(input []int, mode int) (int, []int) {
 	return max, mp
 }
 
-func CalculateThrusterSignal(i []int, p []int) int {
+func CalculateThrusterSignal(memory []int, p []int) int {
 	rw := make([]ReaderWriter, 5)
 	for k := 0; k < 5; k++ {
 		rw[k] = NewReaderWriter([]int{p[k]})
@@ -61,9 +61,10 @@ func CalculateThrusterSignal(i []int, p []int) int {
 	wg.Add(5)
 	for k := 0; k < 5; k++ {
 		go func(l int) {
-			ic := make([]int, len(i))
-			copy(ic, i)
-			ProcessInstructions(ic, &rw[l], &rw[(l+1)%5])
+			memcpy := make([]int, len(memory))
+			copy(memcpy, memory)
+			intcomp := NewIntcomp(memcpy, &rw[l], &rw[(l+1)%5])
+			intcomp.ProcessInstructions()
 			wg.Done()
 		}(k)
 	}

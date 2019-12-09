@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+// ReadLines from a file
 func ReadLines(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -24,6 +25,7 @@ func ReadLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+// AssertEqual checks if 2 slices are equal
 func AssertEqual(t *testing.T, a, b []int) {
 	if len(a) != len(b) {
 		t.Error("lengths don't match")
@@ -37,6 +39,7 @@ func AssertEqual(t *testing.T, a, b []int) {
 	}
 }
 
+// PasswordIntToIntArr converts a 6-digit password to an array with 6 ints
 func PasswordIntToIntArr(i int) []int {
 	arr := make([]int, 6)
 	split := strings.Split(strconv.Itoa(i), "")
@@ -46,6 +49,13 @@ func PasswordIntToIntArr(i int) []int {
 	return arr
 }
 
+/*
+InstructionIntToIntArr converts an instruction into an array. Positions are used as following:
+  0 - opcode
+  1 - mode of 1st parameter
+  2 - mode of 2nd parameter
+  3 - mode of 3rd parameter
+*/
 func InstructionIntToIntArr(i int) []int {
 	arr := make([]int, 4)
 	arr[0] = (i % 100)
@@ -55,6 +65,9 @@ func InstructionIntToIntArr(i int) []int {
 	return arr
 }
 
+/*
+ReadProgram reads a file with a program for intcode computer into an int array
+*/
 func ReadProgram(path string) []int {
 	inputText, _ := ReadLines(path)
 	inputText = strings.Split(inputText[0], ",")
@@ -66,11 +79,13 @@ func ReadProgram(path string) []int {
 	return toRet
 }
 
+// ReaderWriter implements io.Reader and io.Writer and uses a buffered channel for reading and writing int values
 type ReaderWriter struct {
 	Name string
 	Ch   chan int
 }
 
+// NewReaderWriter consctructs a ReaderWriter using some init values inserted into the channel
 func NewReaderWriter(init []int) ReaderWriter {
 	rw := ReaderWriter{Ch: make(chan int, 100)}
 	for _, v := range init {

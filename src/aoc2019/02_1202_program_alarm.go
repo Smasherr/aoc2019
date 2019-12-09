@@ -2,28 +2,8 @@ package aoc2019
 
 import "fmt"
 
-func ProcessOpcode(input []int) []int {
-	step := 0
-	for i := 0; i < len(input); i += step {
-		if input[i] == 1 {
-			input[input[i+3]] = input[input[i+1]] + input[input[i+2]]
-			step = 4
-			continue
-		}
-		if input[i] == 2 {
-			input[input[i+3]] = input[input[i+1]] * input[input[i+2]]
-			step = 4
-			continue
-		}
-		if input[i] == 99 {
-			step = 1
-			return input
-		}
-	}
-	return input
-}
-
-func main2() {
+// Main2 solves Day 2
+func Main2() {
 	input := []int{1, 0, 0, 3,
 		1, 1, 2, 3,
 		1, 3, 4, 3,
@@ -59,7 +39,7 @@ func main2() {
 	copy(result1, input)
 	result1[1] = 12
 	result1[2] = 2
-	fmt.Println(ProcessOpcode(result1)[0])
+	fmt.Println(NewIntcomp(result1, nil, nil).ProcessInstructions()[0])
 
 	for noun := 0; noun <= 99; noun++ {
 		for verb := 0; verb <= 99; verb++ {
@@ -67,7 +47,7 @@ func main2() {
 			copy(result2, input)
 			result2[1] = noun
 			result2[2] = verb
-			if ProcessOpcode(result2)[0] == 19690720 {
+			if NewIntcomp(result2, nil, nil).ProcessInstructions()[0] == 19690720 {
 				fmt.Println(100*noun + verb)
 				break
 			}

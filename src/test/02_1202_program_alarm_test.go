@@ -8,17 +8,17 @@ import (
 
 func TestOpcode(t *testing.T) {
 	example1 := []int{1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50}
-	aoc2019.AssertEqual(t, []int{3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50}, aoc2019.ProcessOpcode(example1))
+	aoc2019.AssertEqual(t, []int{3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50}, aoc2019.NewIntcomp(example1, nil, nil).ProcessInstructions())
 
 	example2 := []int{1, 0, 0, 0, 99}
-	aoc2019.AssertEqual(t, []int{2, 0, 0, 0, 99}, aoc2019.ProcessOpcode(example2))
+	aoc2019.AssertEqual(t, []int{2, 0, 0, 0, 99}, aoc2019.NewIntcomp(example2, nil, nil).ProcessInstructions())
 
 	example3 := []int{2, 3, 0, 3, 99}
-	aoc2019.AssertEqual(t, []int{2, 3, 0, 6, 99}, aoc2019.ProcessOpcode(example3))
+	aoc2019.AssertEqual(t, []int{2, 3, 0, 6, 99}, aoc2019.NewIntcomp(example3, nil, nil).ProcessInstructions())
 
 	example4 := []int{2, 4, 4, 5, 99, 0}
-	aoc2019.AssertEqual(t, []int{2, 4, 4, 5, 99, 9801}, aoc2019.ProcessOpcode(example4))
+	aoc2019.AssertEqual(t, []int{2, 4, 4, 5, 99, 9801}, aoc2019.NewIntcomp(example4, nil, nil).ProcessInstructions())
 
 	example5 := []int{1, 1, 1, 4, 99, 5, 6, 0, 99}
-	aoc2019.AssertEqual(t, []int{30, 1, 1, 4, 2, 5, 6, 0, 99}, aoc2019.ProcessOpcode(example5))
+	aoc2019.AssertEqual(t, []int{30, 1, 1, 4, 2, 5, 6, 0, 99}, aoc2019.NewIntcomp(example5, nil, nil).ProcessInstructions())
 }

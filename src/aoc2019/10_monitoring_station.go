@@ -41,7 +41,7 @@ func FindBestLocation(amap []string) (Asteroid, int, Asteroid) {
 				continue
 			}
 			angle := math.Atan2(float64(a2.Y-a1.Y), float64(a2.X-a1.X))*180/math.Pi + 450
-			angle = float64(int(math.Round(angle*100)) % 36000 / 100)
+			angle = float64(int(math.Round(angle*100))%36000) / 100
 			distance12 := math.Sqrt(math.Pow(float64(a2.X-a1.X), 2) + math.Pow(float64(a2.Y-a1.Y), 2))
 
 			//fmt.Printf("Asteroid 1: %d,%d; Asteroid 2: %d,%d; Angle: %f; Distance: %f\n", a1.X, a1.Y, a2.X, a2.Y, angle, distance)
@@ -63,7 +63,7 @@ func FindBestLocation(amap []string) (Asteroid, int, Asteroid) {
 	}
 
 	station := asteroidsAngles[best]
-	keys := make([]float64, len(station))
+	keys := make([]float64, 0, len(station))
 	for angle := range station {
 		keys = append(keys, angle)
 	}
@@ -72,8 +72,8 @@ func FindBestLocation(amap []string) (Asteroid, int, Asteroid) {
 		angle := keys[k]
 		ar := station[angle]
 		if len(ar) > 0 {
-			twoHundredth = station[angle][0].a
-			station[angle] = station[angle][1:]
+			twoHundredth = ar[0].a
+			station[angle] = ar[1:]
 		}
 		k++
 		k %= len(keys)

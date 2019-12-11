@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Main6 solves Day6
 func Main6() {
 	lines, _ := ReadLines("../res/06_uom.txt")
 	relationships := make([][]string, len(lines))
@@ -15,6 +16,7 @@ func Main6() {
 	fmt.Println(Calculate(relationships))
 }
 
+// Calculate solutions for part 1 and 2
 func Calculate(relationships [][]string) (int, int) {
 	numberOfOrbits := 0
 	orbits := CalculateOrbits(relationships)
@@ -25,6 +27,8 @@ func Calculate(relationships [][]string) (int, int) {
 	return numberOfOrbits, transfers
 }
 
+// CalculateTransfers calculates minimum number of orbital transfers required
+// to move from the object YOU are orbiting to the object SAN is orbiting
 func CalculateTransfers(orbits *map[string][]string) int {
 	you := (*orbits)["YOU"]
 	san := (*orbits)["SAN"]
@@ -38,6 +42,7 @@ func CalculateTransfers(orbits *map[string][]string) int {
 	return 0
 }
 
+// CalculateOrbits calculates the total number of direct and indirect orbits
 func CalculateOrbits(relationships [][]string) map[string][]string {
 	orbits := make(map[string][]string)
 	for _, orbit := range relationships {

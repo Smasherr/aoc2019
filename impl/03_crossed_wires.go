@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Main3 solves Day3
 func Main3() {
 	lines, _ := ReadLines("../res/03_crossed_wires.txt")
 	wire1 := strings.Split(lines[0], ",")
@@ -14,11 +15,12 @@ func Main3() {
 	fmt.Println(CalculateDistancesToClosestIntersection(wire1, wire2))
 }
 
+// CalculateDistancesToClosestIntersection calculates distances to closest intersection (1: relative to the center and 2: having at least steps)
 func CalculateDistancesToClosestIntersection(wire1 []string, wire2 []string) (int, int) {
 	positions1 := calculatePositions(wire1)
 	positions2 := calculatePositions(wire2)
 	intersections := calculateIntersections(positions1, positions2)
-	closestIntersectionManhattan, closestIntersectionDelay := int(^uint(0)>>1), int(^uint(0)>>1)
+	closestIntersectionManhattan, closestIntersectionDelay := math.MaxInt64, math.MaxInt64
 	for _, i := range intersections {
 		closestIntersectionManhattan = int(math.Min(float64(closestIntersectionManhattan), float64(calculateManhattan(i))))
 		closestIntersectionDelay = int(math.Min(float64(closestIntersectionDelay), float64(i[2]+i[3])))

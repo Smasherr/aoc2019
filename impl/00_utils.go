@@ -107,11 +107,13 @@ func (rw *ReaderWriter) Write(data []byte) (int, error) {
 	return len(data), nil
 }
 
+// Point is a simple struct with two integers coordinates X and Y
 type Point struct {
 	X int
 	Y int
 }
 
+// NewPoint constructs Point
 func NewPoint(x int, y int) Point {
 	return Point{x, y}
 }

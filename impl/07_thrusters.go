@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// Main7 solves Day7
 func Main7() {
 	input := ReadProgram("../res/07_thrusters.txt")
 	fmt.Println(CalculateMaxThrusterSignal(input, 1))
@@ -22,6 +23,8 @@ func contains(s []int, e int) bool {
 	return false
 }
 
+// CalculateMaxThrusterSignal calculates the highest signal that can be sent to the thrusters.
+// It iterates all phase settings sequences from 00000 to 44444 in mode 1 or from 55555 to 99999 in mode 2
 func CalculateMaxThrusterSignal(input []int, mode int) (int, []int) {
 	max := 0
 	var mp []int
@@ -50,6 +53,7 @@ func CalculateMaxThrusterSignal(input []int, mode int) (int, []int) {
 	return max, mp
 }
 
+// CalculateThrusterSignal calculates a signal that can be sent to the thrusters with a given phases settings
 func CalculateThrusterSignal(memory []int, p []int) int {
 	rw := make([]ReaderWriter, 5)
 	for k := 0; k < 5; k++ {

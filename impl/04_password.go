@@ -4,10 +4,12 @@ import (
 	"fmt"
 )
 
+// Main4 solves Day4
 func Main4() {
 	fmt.Println(CountValidPasswords(284639, 748759))
 }
 
+// CountValidPasswords returns the amount of passwords fulfilling requirements for parts 1 and 2
 func CountValidPasswords(start int, end int) (int, int) {
 	count1, count2 := 0, 0
 	for i := start; i <= end; i++ {
@@ -22,6 +24,7 @@ func CountValidPasswords(start int, end int) (int, int) {
 	return count1, count2
 }
 
+// IsValidPassword1 determines if password fulfills requirements for the part 1
 func IsValidPassword1(password []int) bool {
 	fullfillsAdjRule := false
 	fullfillsIncRule := false
@@ -39,6 +42,7 @@ func IsValidPassword1(password []int) bool {
 	return fullfillsAdjRule && fullfillsIncRule
 }
 
+// IsValidPassword2 determines if password fulfills additional requirements for the part 2
 func IsValidPassword2(password []int) bool {
 	fullfillsAdjRule := false
 	countAdj := 0

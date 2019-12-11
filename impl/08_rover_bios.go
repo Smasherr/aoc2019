@@ -11,6 +11,7 @@ const width = 25
 const height = 6
 const resolution = width * height
 
+// Main8 solves Day8
 func Main8() {
 	file, _ := ReadLines("../res/08_rover_bios.txt")
 	imagedata := strings.Split(file[0], "")

@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Main10 solves Day10
 func Main10() {
 	lines, _ := ReadLines("../res/10_monitoring_station.txt")
 	fmt.Println(FindBestLocation(lines))

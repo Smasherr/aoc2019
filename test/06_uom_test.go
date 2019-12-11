@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"../aoc2019"
+	. "github.com/Smasherr/aoc2019/impl"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,6 +54,6 @@ func TestCalculateNumberOfOrbits(t *testing.T) {
 	testobjects[10][0] = "E"
 	testobjects[10][1] = "F"
 
-	o, _ := aoc2019.Calculate(testobjects)
+	o, _ := Calculate(testobjects)
 	assert.EqualValues(t, 42, o)
 }

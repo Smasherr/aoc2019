@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"bufio"
@@ -105,4 +105,13 @@ func (rw *ReaderWriter) Write(data []byte) (int, error) {
 	val, _ := strconv.Atoi(strings.TrimSpace(string(data)))
 	rw.Ch <- val
 	return len(data), nil
+}
+
+type Point struct {
+	X int
+	Y int
+}
+
+func NewPoint(x int, y int) Point {
+	return Point{x, y}
 }

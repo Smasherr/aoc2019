@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 func Main7() {
-	input := ReadProgram("../../res/07_thrusters.txt")
+	input := ReadProgram("../res/07_thrusters.txt")
 	fmt.Println(CalculateMaxThrusterSignal(input, 1))
 	fmt.Println(CalculateMaxThrusterSignal(input, 2))
 }

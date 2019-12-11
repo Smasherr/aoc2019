@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func Main6() {
-	lines, _ := ReadLines("../../res/06_uom.txt")
+	lines, _ := ReadLines("../res/06_uom.txt")
 	relationships := make([][]string, len(lines))
 	for i, line := range lines {
 		relationship := strings.Split(line, ")")

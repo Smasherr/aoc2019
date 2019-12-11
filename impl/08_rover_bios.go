@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ const height = 6
 const resolution = width * height
 
 func Main8() {
-	file, _ := ReadLines("../../res/08_rover_bios.txt")
+	file, _ := ReadLines("../res/08_rover_bios.txt")
 	imagedata := strings.Split(file[0], "")
 	layers := make([][height][width]int, 100)
 	zeroi, zerok, zerol := 0, math.MaxInt32, 0

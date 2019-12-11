@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"bufio"

@@ -1,4 +1,4 @@
-package aoc2019
+package impl
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 func Main3() {
-	lines, _ := ReadLines("../../res/03_crossed_wires.txt")
+	lines, _ := ReadLines("../res/03_crossed_wires.txt")
 	wire1 := strings.Split(lines[0], ",")
 	wire2 := strings.Split(lines[1], ",")
 	fmt.Println(CalculateDistancesToClosestIntersection(wire1, wire2))

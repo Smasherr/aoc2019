@@ -17,7 +17,7 @@ func Main11() {
 
 	program = ReadProgram("../res/11_painting_robot.txt")
 	r = newRobot()
-	r.paintedPoints[NewPoint(0, 0)] = 1
+	r.paintedPoints[*new(Point2D)] = 1
 	ic = NewIntcomp(program, &r, &r)
 	ic.ProcessInstructions()
 	maxX, maxY := 0, 0
@@ -27,7 +27,7 @@ func Main11() {
 	}
 	for y := 0; y <= maxY; y++ {
 		for x := 0; x <= maxX; x++ {
-			if r.paintedPoints[NewPoint(x, y)] == 0 {
+			if r.paintedPoints[NewPoint2D(x, y)] == 0 {
 				fmt.Print(" ")
 			} else {
 				fmt.Print("■")
@@ -38,13 +38,13 @@ func Main11() {
 }
 
 type robot struct {
-	paintedPoints       map[Point]int
-	currentPosition     Point
+	paintedPoints       map[Point2D]int
+	currentPosition     Point2D
 	writePointer, angle int
 }
 
 func newRobot() robot {
-	return robot{make(map[Point]int), NewPoint(0, 0), 0, 0}
+	return robot{make(map[Point2D]int), *new(Point2D), 0, 0}
 }
 
 func (r *robot) Read(data []byte) (int, error) {

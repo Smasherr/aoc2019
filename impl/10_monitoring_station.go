@@ -14,22 +14,22 @@ func Main10() {
 }
 
 type asteroidRelation struct {
-	a Point
+	a Point2D
 	d float64
 }
 
 // FindBestLocation Asteroid map as string slice and calculates the best location for a new monitoring station
-func FindBestLocation(amap []string) (Point, int, Point) {
-	var asteroids []Point
+func FindBestLocation(amap []string) (Point2D, int, Point2D) {
+	var asteroids []Point2D
 	for y := 0; y < len(amap); y++ {
 		split := strings.Split(amap[y], "")
 		for x := 0; x < len(split); x++ {
 			if split[x] == "#" {
-				asteroids = append(asteroids, NewPoint(x, y))
+				asteroids = append(asteroids, NewPoint2D(x, y))
 			}
 		}
 	}
-	asteroidsAngles := make(map[Point]map[float64][]asteroidRelation)
+	asteroidsAngles := make(map[Point2D]map[float64][]asteroidRelation)
 	for _, a1 := range asteroids {
 		asteroidsAngles[a1] = make(map[float64][]asteroidRelation)
 		for _, a2 := range asteroids {
@@ -49,8 +49,8 @@ func FindBestLocation(amap []string) (Point, int, Point) {
 	}
 
 	max := 0
-	var best Point
-	var twoHundredth Point
+	var best Point2D
+	var twoHundredth Point2D
 	for asteroid1, angles := range asteroidsAngles {
 		if len(angles) > max {
 			max = len(angles)

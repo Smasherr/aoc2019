@@ -33,21 +33,21 @@ func ApplyGravity(m1 *Moon, m2 *Moon) {
 	if m2.Pos.X > m1.Pos.X {
 		m1.Vel.X++
 		m2.Vel.X--
-	} else {
+	} else if m2.Pos.X < m1.Pos.X {
 		m1.Vel.X--
 		m2.Vel.X++
 	}
 	if m2.Pos.Y > m1.Pos.Y {
 		m1.Vel.Y++
 		m2.Vel.Y--
-	} else {
+	} else if m2.Pos.Y < m1.Pos.Y {
 		m1.Vel.Y--
 		m2.Vel.Y++
 	}
 	if m2.Pos.Z > m1.Pos.Z {
 		m1.Vel.Z++
 		m2.Vel.Z--
-	} else {
+	} else if m2.Pos.Z < m1.Pos.Z {
 		m1.Vel.Z--
 		m2.Vel.Z++
 	}

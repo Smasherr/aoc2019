@@ -19,7 +19,6 @@ type chemical struct {
 }
 
 var reactions map[string][]chemical
-var basicChemicals map[string]int
 var leftovers map[string]int
 
 // CalculateAmountOfOreForFuel calculates the minimum amount of ORE required to produce exactly 1 FUEL
@@ -42,7 +41,6 @@ func CalculateAmountOfFuel(input []string, orePerFuel int) int {
 
 func prepareData(input []string) {
 	reactions = make(map[string][]chemical)
-	basicChemicals = make(map[string]int)
 	leftovers = make(map[string]int)
 	var materialList, inputMaterial, productMaterial string
 	var inputAmount, productAmount int
@@ -57,9 +55,6 @@ func prepareData(input []string) {
 		for i, entry := range materials {
 			fmt.Sscanf(entry, "%d %s", &inputAmount, &inputMaterial)
 			chemicals[i+1] = chemical{inputAmount, inputMaterial}
-			if inputMaterial == "ORE" {
-				basicChemicals[productMaterial] = 0
-			}
 		}
 		reactions[productMaterial] = chemicals
 	}

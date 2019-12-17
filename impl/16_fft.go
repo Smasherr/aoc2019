@@ -10,32 +10,29 @@ import (
 // Main16 solves Day16
 func Main16() {
 	lines, _ := ReadLines("../res/16_fft.txt")
-	fmt.Print(FFT(lines[0], 100)[:8])
+	fmt.Println(FFT(lines[0], 100, false)[:8])
+	part2 := ""
+	for i := 0; i < 10000; i++ {
+		part2 += lines[0]
+	}
+	part2 = FFT(part2, 100, true)
+	offset, _ := strconv.Atoi(part2[:7])
+	fmt.Println(part2[offset : offset+8])
 }
-
-var pattern [][]int
 
 var basePattern [4]int = [4]int{0, 1, 0, -1}
 
 // FFT calculates FFT
-func FFT(input string, phases int) string {
-	pattern = make([][]int, len(input))
-	for i := 0; i < len(input); i++ {
-		pattern[i] = make([]int, len(input))
-		for k := 0; k < ceil(len(input), (i+1)*4)*(i+1)*4; k += (i + 1) * 4 {
-			for b := 1; b <= 4*(i+1) && k+(i+1)*((b-1)/(i+1))+((b-1)%(i+1)) < len(input); b++ {
-				b1 := b % (i + 1)
-				b2 := b / (i + 1)
-				pattern[i][k+(i+1)*b2+(b1-1)] = basePattern[b2%4]
-			}
-		}
-	}
+func FFT(input string, phases int, output bool) string {
 	signal := stringToIntArr(input)
 	for phase := 0; phase < phases; phase++ {
+		if output {
+			fmt.Printf("Phase %d\n", phase)
+		}
 		phaseOutput := make([]int, len(signal))
 		for y := range signal {
 			for x, i := range signal {
-				phaseOutput[y] += i * pattern[y][x]
+				phaseOutput[y] += i * basePattern[((x+1)/(y+1))%4]
 			}
 			phaseOutput[y] = int(math.Copysign(float64(phaseOutput[y]), 1))
 			phaseOutput[y] %= 10
@@ -43,6 +40,13 @@ func FFT(input string, phases int) string {
 		signal = phaseOutput
 	}
 	return strings.Trim(strings.Replace(fmt.Sprint(signal), " ", "", -1), "[]")
+}
+
+func negMod(divisor int, modulo int) int {
+	if divisor < 0 {
+		return modulo + divisor/modulo
+	}
+	return divisor % modulo
 }
 
 func stringToIntArr(s string) []int {

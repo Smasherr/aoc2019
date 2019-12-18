@@ -3,5 +3,5 @@ package main
 import "github.com/Smasherr/aoc2019/impl"
 
 func main() {
-	impl.Main16()
+	impl.Main15()
 }

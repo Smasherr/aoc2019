@@ -1,111 +1,158 @@
 package impl
 
 import (
-	"math"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	tm "github.com/buger/goterm"
+	tb "github.com/nsf/termbox-go"
 )
+
+var path []Point2D
+var render bool
 
 // Main15 solves Day15
 func Main15() {
+	tb.Init()
+	tb.PollEvent()
+	defer tb.Close()
 	program := ReadProgram("../res/15_oxygen_system.txt")
 	repairDroid := newRepairDroid()
-	ic := NewIntcomp(program, &repairDroid, &repairDroid)
+	ic := NewIntcomp(program, repairDroid, repairDroid)
 	ic.ProcessInstructions()
+	tb.PollEvent()
 }
 
 type repairDroid struct {
 	position  *Point2D
-	theMap    map[Point2D][2]int
+	theMap    map[Point2D]int
 	command   int
 	output    int
 	commandCh chan int
 	outputCh  chan int
+	done      bool
 }
 
-func newRepairDroid() repairDroid {
-	theMap := make(map[Point2D][2]int)
-	theMap[*new(Point2D)] = [2]int{1, 0}
+func newRepairDroid() *repairDroid {
+	theMap := make(map[Point2D]int)
+	theMap[*new(Point2D)] = 1
 	commandCh := make(chan int)
 	outputCh := make(chan int)
-	repairDroid := repairDroid{new(Point2D), theMap, 1, 1, commandCh, outputCh}
+	repairDroid := repairDroid{new(Point2D), theMap, 0, 0, commandCh, outputCh, false}
 	go findSolution(&repairDroid)
-	return repairDroid
+	return &repairDroid
 }
 
 func findSolution(d *repairDroid) {
-	d.commandCh <- 1
+	skipReadFromChannel := true
+	possibleWays := make(map[Point2D][]int)
 
-	var path []Point2D
 	path = append(path, *new(Point2D))
-	path = append(path, NewPoint2D(0, -1))
 
 	visited := make(map[Point2D]struct{})
 	visited[*new(Point2D)] = struct{}{}
-	visited[NewPoint2D(0, -1)] = struct{}{}
 
-	for <-d.outputCh != 2 && len(path) != 0 {
-		direction := d.theMap[*d.position][1]
-		var command int
-		possibleWays := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
+	explorePointer := 0
+	possiblyNeedToRevert := false
+	for skipReadFromChannel || <-d.outputCh != 2 && len(path) != 0 {
+		neighbours := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
 			NewPoint2D(d.position.X, d.position.Y+1), NewPoint2D(d.position.X+1, d.position.Y)}
-		if direction < 4 {
-
-			path = append(path, possibleWays[direction])
-			visited[*d.position] = struct{}{}
-			d.theMap[*d.position] = [2]int{d.theMap[*d.position][0], direction + 1}
-			command = remap(direction)
-		} else {
-			back := path[len(path)-1]
-			i := 1
-			for i < 5 && back != possibleWays[i-1] {
-				i++
-			}
-			path = path[:len(path)-1]
-			command = remap(i)
-		}
-		d.commandCh <- command
-		/*foundOutlet := false
-		possibleWays := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
-			NewPoint2D(d.position.X, d.position.Y+1), NewPoint2D(d.position.X+1, d.position.Y)}
-		i := 0
-		for i < 4 && !foundOutlet {
-			i++
-			_, visitedPoint := visited[possibleWays[i-1]]
-			pointOnTheMap, knownPoint := d.theMap[possibleWays[i-1]]
-			if (!knownPoint || pointOnTheMap != 0) && !visitedPoint {
-				foundOutlet = true
-			}
-		}
-		if foundOutlet {
-			path = append(path, possibleWays[i-1])
-						visitedPoint := true
-						for _, p := range possibleWays {
-							_, knownPoint := d.theMap[p]
-							if !knownPoint {
-								visitedPoint = false
-								break
-							}
-						}
-						if visitedPoint {
-			visited[*d.position] = struct{}{}
+		if explorePointer < 5 {
+			render = false
+			if d.output == 1 && possiblyNeedToRevert {
+				previousPosition := neighbours[directionToIndex(revert(d.command))]
+				possibleWays[previousPosition] = append(possibleWays[previousPosition], d.command)
+				skipReadFromChannel = false
+				possiblyNeedToRevert = false
+				d.commandCh <- revert(d.command)
+			} else if explorePointer < 4 {
+				node := neighbours[explorePointer]
+				_, knownPoint := d.theMap[node]
+				if knownPoint {
+					explorePointer++
+					skipReadFromChannel = true
+					continue
+				} else {
+					skipReadFromChannel = false
+					possiblyNeedToRevert = true
+					d.commandCh <- indexToDirection(explorePointer)
+					explorePointer++
+				}
+			} else {
+				explorePointer++
+				skipReadFromChannel = true
 			}
 		} else {
-			back := path[len(path)-1]
-			i = 1
-			for i < 5 && back != possibleWays[i-1] {
-				i++
+			render = true
+			foundOutlet := false
+			pw := possibleWays[*d.position]
+			i := 0
+			var point Point2D
+			for ; !foundOutlet && i < len(pw); i++ {
+				point = neighbours[directionToIndex(pw[i])]
+				_, visitedPoint := visited[point]
+				if !visitedPoint {
+					foundOutlet = true
+				}
 			}
-			path = path[:len(path)-1]
+			if foundOutlet {
+				path = append(path, point)
+				visited[point] = struct{}{}
+				d.commandCh <- pointToDirection(neighbours, &point)
+			} else {
+				back := path[len(path)-2]
+				for i := 0; i < len(neighbours); i++ {
+					if neighbours[i] == back {
+						path = path[:len(path)-1]
+						d.commandCh <- indexToDirection(i)
+						break
+					}
+				}
+			}
+			explorePointer = 0
+			possiblyNeedToRevert = false
+			skipReadFromChannel = false
 		}
-		d.commandCh <- i*/
+	}
+	d.done = true
+	render = true
+	neighbours := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
+		NewPoint2D(d.position.X, d.position.Y+1), NewPoint2D(d.position.X+1, d.position.Y)}
+	back := path[len(path)-1]
+	for i := 0; i < len(neighbours); i++ {
+		if neighbours[i] == back {
+			d.commandCh <- indexToDirection(i)
+			break
+		}
 	}
 }
 
-func remap(i int) int {
+func pointToDirection(neighbours []Point2D, p *Point2D) int {
+	for i := 0; i < len(neighbours); i++ {
+		if neighbours[i] == *p {
+			return indexToDirection(i)
+		}
+	}
+	panic("Error")
+}
+
+func revert(i int) int {
+	toRet := 0
+	switch i {
+	case 1:
+		toRet = 2
+	case 2:
+		toRet = 1
+	case 3:
+		toRet = 4
+	case 4:
+		toRet = 3
+	}
+	return toRet
+}
+
+func indexToDirection(i int) int {
 	toRet := 0
 	switch i {
 	case 0:
@@ -120,6 +167,21 @@ func remap(i int) int {
 	return toRet
 }
 
+func directionToIndex(i int) int {
+	toRet := 0
+	switch i {
+	case 1:
+		toRet = 0
+	case 2:
+		toRet = 2
+	case 3:
+		toRet = 1
+	case 4:
+		toRet = 3
+	}
+	return toRet
+}
+
 func (d *repairDroid) Write(data []byte) (int, error) {
 	d.output, _ = strconv.Atoi(strings.TrimSpace(string(data)))
 	switch d.output {
@@ -128,16 +190,16 @@ func (d *repairDroid) Write(data []byte) (int, error) {
 		switch d.command {
 		case 1:
 			// north
-			d.theMap[NewPoint2D(d.position.X, d.position.Y-1)] = [2]int{d.output, 0}
+			d.theMap[NewPoint2D(d.position.X, d.position.Y-1)] = d.output
 		case 2:
 			// south
-			d.theMap[NewPoint2D(d.position.X, d.position.Y+1)] = [2]int{d.output, 0}
+			d.theMap[NewPoint2D(d.position.X, d.position.Y+1)] = d.output
 		case 3:
 			// west
-			d.theMap[NewPoint2D(d.position.X-1, d.position.Y)] = [2]int{d.output, 0}
+			d.theMap[NewPoint2D(d.position.X-1, d.position.Y)] = d.output
 		case 4:
 			// east
-			d.theMap[NewPoint2D(d.position.X+1, d.position.Y)] = [2]int{d.output, 0}
+			d.theMap[NewPoint2D(d.position.X+1, d.position.Y)] = d.output
 		}
 	case 1, 2:
 		// one step
@@ -157,11 +219,18 @@ func (d *repairDroid) Write(data []byte) (int, error) {
 		}
 		_, exists := d.theMap[*d.position]
 		if !exists {
-			d.theMap[*d.position] = [2]int{d.output, 0}
+			d.theMap[*d.position] = d.output
 		}
 	}
-	d.render()
-	d.outputCh <- d.output
+	if !d.done {
+		d.outputCh <- d.output
+	} else {
+		close(d.outputCh)
+		close(d.commandCh)
+	}
+	if render {
+		d.render()
+	}
 	return len(data), nil
 }
 
@@ -173,37 +242,46 @@ func (d *repairDroid) Read(data []byte) (int, error) {
 }
 
 func (d *repairDroid) render() {
-	tm.Clear()
-	minX, minY, maxX, maxY := math.MaxInt64, math.MaxInt64, math.MinInt64, math.MinInt64
-	for p := range d.theMap {
-		minX = int(math.Min(float64(minX), float64(p.X)))
-		minY = int(math.Min(float64(minY), float64(p.Y)))
-		maxX = int(math.Max(float64(maxX), float64(p.X)))
-		maxY = int(math.Max(float64(maxY), float64(p.Y)))
-	}
-	for y := d.position.Y - 11; y <= d.position.Y+11; y++ {
-		for x := d.position.X - 20; x <= d.position.X+20; x++ {
-			p := NewPoint2D(x, y)
-			if p == *d.position {
-				tm.Print("D")
-			} else {
-				v, ok := d.theMap[p]
-				if ok {
-					switch v[0] {
-					case 0:
-						tm.Print("#")
-					case 1:
-						tm.Print(".")
-					case 2:
-						tm.Print("O")
+	for y := 0; y <= 40; y++ {
+		for x := 0; x <= 40; x++ {
+			p := NewPoint2D(x-21, y-21)
+			v, ok := d.theMap[p]
+			if ok {
+				switch v {
+				case 0:
+					tb.SetCell(x, y, '#', tb.ColorDefault, tb.ColorDefault)
+				case 1:
+					if pathContains(&p) {
+						tb.SetCell(x, y, ' ', tb.ColorDefault, tb.ColorRed)
+					} else {
+						tb.SetCell(x, y, '.', tb.ColorDefault, tb.ColorDefault)
 					}
-				} else {
-					tm.Print(" ")
+				case 2:
+					tb.SetCell(x, y, 'O', tb.ColorCyan, tb.ColorDefault)
 				}
 			}
 		}
-		tm.Println()
 	}
+	tb.SetCell(d.position.X+21, d.position.Y+21, 'D', tb.ColorDefault, tb.ColorDefault)
+	print(0, 41, fmt.Sprintf("X: %2d, Y: %2d, Path: %3d", d.position.X+21, d.position.Y+21, len(path)))
 	time.Sleep(25 * time.Millisecond)
-	tm.Flush()
+	tb.Flush()
+}
+
+func pathContains(p *Point2D) bool {
+	contains := false
+	for _, node := range path {
+		if node == *p {
+			contains = true
+			break
+		}
+	}
+	return contains
+}
+func print(x, y int, s string) {
+	for _, r := range s {
+		c := tb.ColorDefault
+		tb.SetCell(x, y, r, tb.ColorDefault, c)
+		x++
+	}
 }

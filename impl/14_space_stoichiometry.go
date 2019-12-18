@@ -2,7 +2,6 @@ package impl
 
 import (
 	"fmt"
-	"math"
 	"strings"
 )
 
@@ -78,8 +77,4 @@ func calculateAmountOfOre(target string, amount int) int {
 		}
 	}
 	return amountOfOre
-}
-
-func ceil(a int, b int) int {
-	return int(math.Ceil(float64(a) / float64(b)))
 }

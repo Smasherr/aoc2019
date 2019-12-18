@@ -138,3 +138,7 @@ func LCM(a, b int, integers ...int) int {
 
 	return result
 }
+
+func ceil(a int, b int) int {
+	return int(math.Ceil(float64(a) / float64(b)))
+}

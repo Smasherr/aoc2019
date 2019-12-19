@@ -26,7 +26,6 @@ func Main15() {
 
 type repairDroid struct {
 	position  *Point2D
-	theMap    map[Point2D]int
 	command   int
 	output    int
 	commandCh chan int
@@ -39,7 +38,7 @@ func newRepairDroid() *repairDroid {
 	theMap[*new(Point2D)] = 1
 	commandCh := make(chan int)
 	outputCh := make(chan int)
-	repairDroid := repairDroid{new(Point2D), theMap, 0, 0, commandCh, outputCh, false}
+	repairDroid := repairDroid{new(Point2D), 0, 0, commandCh, outputCh, false}
 	go findSolution(&repairDroid)
 	return &repairDroid
 }
@@ -68,7 +67,7 @@ func findSolution(d *repairDroid) {
 				d.commandCh <- revert(d.command)
 			} else if explorePointer < 4 {
 				node := neighbours[explorePointer]
-				_, knownPoint := d.theMap[node]
+				_, knownPoint := theMap[node]
 				if knownPoint {
 					explorePointer++
 					skipReadFromChannel = true
@@ -190,16 +189,16 @@ func (d *repairDroid) Write(data []byte) (int, error) {
 		switch d.command {
 		case 1:
 			// north
-			d.theMap[NewPoint2D(d.position.X, d.position.Y-1)] = d.output
+			theMap[NewPoint2D(d.position.X, d.position.Y-1)] = d.output
 		case 2:
 			// south
-			d.theMap[NewPoint2D(d.position.X, d.position.Y+1)] = d.output
+			theMap[NewPoint2D(d.position.X, d.position.Y+1)] = d.output
 		case 3:
 			// west
-			d.theMap[NewPoint2D(d.position.X-1, d.position.Y)] = d.output
+			theMap[NewPoint2D(d.position.X-1, d.position.Y)] = d.output
 		case 4:
 			// east
-			d.theMap[NewPoint2D(d.position.X+1, d.position.Y)] = d.output
+			theMap[NewPoint2D(d.position.X+1, d.position.Y)] = d.output
 		}
 	case 1, 2:
 		// one step
@@ -217,9 +216,9 @@ func (d *repairDroid) Write(data []byte) (int, error) {
 			// east
 			d.position.X++
 		}
-		_, exists := d.theMap[*d.position]
+		_, exists := theMap[*d.position]
 		if !exists {
-			d.theMap[*d.position] = d.output
+			theMap[*d.position] = d.output
 		}
 	}
 	if !d.done {
@@ -245,7 +244,7 @@ func (d *repairDroid) render() {
 	for y := 0; y <= 40; y++ {
 		for x := 0; x <= 40; x++ {
 			p := NewPoint2D(x-21, y-21)
-			v, ok := d.theMap[p]
+			v, ok := theMap[p]
 			if ok {
 				switch v {
 				case 0:

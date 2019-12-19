@@ -20,21 +20,25 @@ func Main19() {
 	ic := NewIntcomp(program, beamDroid, beamDroid)
 	done := false
 	x, y := 0, 0
-	scanWidth = 1000
-	for beamDroid.count < scanWidth*scanWidth-1 {
+	scanWidth = 2000
+	for !done && beamDroid.count < scanWidth*scanWidth-1 {
 		ic.ProcessInstructions()
 		beamDroid.render()
-	}
-	scanWidth = 1000
-	beamDroid = newBeamDroid()
-	ic = NewIntcomp(program, beamDroid, beamDroid)
-	for i := 0; i < scanWidth*scanWidth-1 || done; i++ {
-		ic.ProcessInstructions()
 		if beamDroid.position.Y > 500 && lineBreak {
 			done, x, y = beamDroid.squareFits()
 			lineBreak = false
 		}
 	}
+	for i := y; i < 100; i++ {
+		for k := x; k < 100; k++ {
+			p := NewPoint2D(x, y)
+			v, ok := theMap[p]
+			if ok && v == 1 {
+				theMap[p] = 2
+			}
+		}
+	}
+	beamDroid.render()
 	fmt.Println(10000*x + y)
 	tb.PollEvent()
 }
@@ -61,7 +65,9 @@ func newBeamDroid() *beamDroid {
 func (d *beamDroid) Write(data []byte) (int, error) {
 	d.output, _ = strconv.Atoi(strings.TrimSpace(string(data)))
 	theMap[d.position] = d.output
-	d.affectedPoints += d.output
+	if d.position.Y < 50 {
+		d.affectedPoints += d.output
+	}
 	d.affectedOnX[d.position.Y] += d.output
 	d.affectedOnY[d.position.X] += d.output
 	return len(data), nil
@@ -95,24 +101,27 @@ func (d *beamDroid) Read(data []byte) (int, error) {
 
 func (d *beamDroid) render() {
 	tb.Clear(tb.ColorDefault, tb.ColorDefault)
-	print(0, 0, fmt.Sprintf("Affected points: %2d", d.affectedPoints))
-	maxX, offsetX, offsetY := 0, 0, -1
+	print(0, 0, fmt.Sprintf("Affected points in 50x50: %2d", d.affectedPoints))
+	maxX, offsetX, offsetY := 0, -4, -1
 	for p, v := range theMap {
 		if v == 1 {
 			maxX = int(math.Max(float64(maxX), float64(p.X)))
 		}
 	}
 	if maxX > 200 {
-		offsetX = maxX - 200
+		offsetX = maxX - 200 - 4
 	}
-	if d.position.Y > 60 {
-		offsetY = d.position.Y - 60 - 1
+	if d.position.Y > 100 {
+		offsetY = d.position.Y - 100 - 1
 	}
 	for p, v := range theMap {
-		if p.Y < d.position.Y-60 || p.X < maxX-200 {
+		if p.Y < d.position.Y-100 || p.X < maxX-200 {
 			continue
 		}
 		tb.SetCell(p.X-offsetX, p.Y-offsetY, vtor(v), tb.ColorDefault, tb.ColorDefault)
+	}
+	for y := 1; y <= 101; y++ {
+		print(0, y, fmt.Sprintf("%4d", y+offsetY))
 	}
 	tb.Flush()
 }
@@ -122,23 +131,16 @@ func vtor(v int) rune {
 }
 
 func (d *beamDroid) squareFits() (bool, int, int) {
-	x, y := 0, d.position.Y-11
+	x, y := 0, d.position.Y-100
 	fits := false
-	if d.affectedOnX[y-11] >= 100 {
-		x = firstXforY[y-11] + 1
-		for i := 0; i <= d.affectedOnX[y-11]-100; i++ {
-			x += i
-			p := NewPoint2D(x, y)
-			pVal := theMap[p]
-			pVal = pVal
-			pDown := theMap[NewPoint2D(p.X, p.Y+99)]
-			pDownRight := theMap[NewPoint2D(p.X+99, p.Y+99)]
-			if pDown == 1 && pDownRight == 1 {
+	if d.affectedOnX[y] >= 100 {
+		x = firstXforY[y]
+		for i := 0; i <= d.affectedOnX[y]-100; i++ {
+			if d.affectedOnY[x+99] >= 100 {
 				fits = true
-				x = p.X
-				y = p.Y
 				break
 			}
+			x++
 		}
 	}
 	return fits, x, y

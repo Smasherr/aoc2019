@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+var theMap map[Point2D]int
+
 // ReadLines from a file
 func ReadLines(path string) ([]string, error) {
 	file, err := os.Open(path)

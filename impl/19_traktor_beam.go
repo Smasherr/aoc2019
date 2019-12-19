@@ -2,7 +2,6 @@ package impl
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 
@@ -23,24 +22,25 @@ func Main19() {
 	scanWidth = 2000
 	for !done && beamDroid.count < scanWidth*scanWidth-1 {
 		ic.ProcessInstructions()
-		beamDroid.render()
+		if beamDroid.count%100 == 0 {
+			beamDroid.render()
+		}
 		if beamDroid.position.Y > 500 && lineBreak {
 			done, x, y = beamDroid.squareFits()
 			lineBreak = false
 		}
 	}
-	for i := y; i < 100; i++ {
-		for k := x; k < 100; k++ {
-			p := NewPoint2D(x, y)
-			v, ok := theMap[p]
-			if ok && v == 1 {
-				theMap[p] = 2
-			}
+	for i := y; i < y+100; i++ {
+		for k := x; k < x+100; k++ {
+			p := NewPoint2D(k, i)
+			theMap[p] = 2
 		}
 	}
 	beamDroid.render()
-	fmt.Println(10000*x + y)
+	print(29, 0, fmt.Sprintf(", coordinates for square: %d:%d", x, y))
+	tb.Flush()
 	tb.PollEvent()
+	tb.Close()
 }
 
 var scanWidth int
@@ -102,12 +102,7 @@ func (d *beamDroid) Read(data []byte) (int, error) {
 func (d *beamDroid) render() {
 	tb.Clear(tb.ColorDefault, tb.ColorDefault)
 	print(0, 0, fmt.Sprintf("Affected points in 50x50: %2d", d.affectedPoints))
-	maxX, offsetX, offsetY := 0, -4, -1
-	for p, v := range theMap {
-		if v == 1 {
-			maxX = int(math.Max(float64(maxX), float64(p.X)))
-		}
-	}
+	maxX, offsetX, offsetY := firstXforY[d.position.Y-1]+d.affectedOnX[d.position.Y-1], -4, -1
 	if maxX > 200 {
 		offsetX = maxX - 200 - 4
 	}
@@ -121,7 +116,7 @@ func (d *beamDroid) render() {
 		tb.SetCell(p.X-offsetX, p.Y-offsetY, vtor(v), tb.ColorDefault, tb.ColorDefault)
 	}
 	for y := 1; y <= 101; y++ {
-		print(0, y, fmt.Sprintf("%4d", y+offsetY))
+		print(0, y, fmt.Sprintf("%4d ", y+offsetY))
 	}
 	tb.Flush()
 }
@@ -131,17 +126,13 @@ func vtor(v int) rune {
 }
 
 func (d *beamDroid) squareFits() (bool, int, int) {
-	x, y := 0, d.position.Y-100
+	x, y := 0, d.position.Y-1
 	fits := false
 	if d.affectedOnX[y] >= 100 {
 		x = firstXforY[y]
-		for i := 0; i <= d.affectedOnX[y]-100; i++ {
-			if d.affectedOnY[x+99] >= 100 {
-				fits = true
-				break
-			}
-			x++
+		if d.affectedOnY[x+99] >= 100 {
+			fits = true
 		}
 	}
-	return fits, x, y
+	return fits, x, y - 99
 }

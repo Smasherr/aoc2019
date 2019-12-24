@@ -10,17 +10,18 @@ import (
 )
 
 var path []Point2D
-var render bool
+var minutes int
+var r bool
 
 // Main15 solves Day15
 func Main15() {
 	tb.Init()
-	tb.PollEvent()
 	defer tb.Close()
 	program := ReadProgram("../res/15_oxygen_system.txt")
 	repairDroid := newRepairDroid()
 	ic := NewIntcomp(program, repairDroid, repairDroid)
 	ic.ProcessInstructions()
+	fillWithOxygen()
 	tb.PollEvent()
 }
 
@@ -34,7 +35,7 @@ type repairDroid struct {
 }
 
 func newRepairDroid() *repairDroid {
-	theMap := make(map[Point2D]int)
+	theMap = make(map[Point2D]int)
 	theMap[*new(Point2D)] = 1
 	commandCh := make(chan int)
 	outputCh := make(chan int)
@@ -58,7 +59,7 @@ func findSolution(d *repairDroid) {
 		neighbours := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
 			NewPoint2D(d.position.X, d.position.Y+1), NewPoint2D(d.position.X+1, d.position.Y)}
 		if explorePointer < 5 {
-			render = false
+			r = false
 			if d.output == 1 && possiblyNeedToRevert {
 				previousPosition := neighbours[directionToIndex(revert(d.command))]
 				possibleWays[previousPosition] = append(possibleWays[previousPosition], d.command)
@@ -83,7 +84,7 @@ func findSolution(d *repairDroid) {
 				skipReadFromChannel = true
 			}
 		} else {
-			render = true
+			r = true
 			foundOutlet := false
 			pw := possibleWays[*d.position]
 			i := 0
@@ -115,16 +116,7 @@ func findSolution(d *repairDroid) {
 		}
 	}
 	d.done = true
-	render = true
-	neighbours := []Point2D{NewPoint2D(d.position.X, d.position.Y-1), NewPoint2D(d.position.X-1, d.position.Y),
-		NewPoint2D(d.position.X, d.position.Y+1), NewPoint2D(d.position.X+1, d.position.Y)}
-	back := path[len(path)-1]
-	for i := 0; i < len(neighbours); i++ {
-		if neighbours[i] == back {
-			d.commandCh <- indexToDirection(i)
-			break
-		}
-	}
+	r = true
 }
 
 func pointToDirection(neighbours []Point2D, p *Point2D) int {
@@ -137,48 +129,15 @@ func pointToDirection(neighbours []Point2D, p *Point2D) int {
 }
 
 func revert(i int) int {
-	toRet := 0
-	switch i {
-	case 1:
-		toRet = 2
-	case 2:
-		toRet = 1
-	case 3:
-		toRet = 4
-	case 4:
-		toRet = 3
-	}
-	return toRet
+	return [4]int{2, 1, 4, 3}[i-1]
 }
 
 func indexToDirection(i int) int {
-	toRet := 0
-	switch i {
-	case 0:
-		toRet = 1
-	case 1:
-		toRet = 3
-	case 2:
-		toRet = 2
-	case 3:
-		toRet = 4
-	}
-	return toRet
+	return [4]int{1, 3, 2, 4}[i]
 }
 
 func directionToIndex(i int) int {
-	toRet := 0
-	switch i {
-	case 1:
-		toRet = 0
-	case 2:
-		toRet = 2
-	case 3:
-		toRet = 1
-	case 4:
-		toRet = 3
-	}
-	return toRet
+	return [4]int{0, 2, 1, 3}[i-1]
 }
 
 func (d *repairDroid) Write(data []byte) (int, error) {
@@ -227,20 +186,22 @@ func (d *repairDroid) Write(data []byte) (int, error) {
 		close(d.outputCh)
 		close(d.commandCh)
 	}
-	if render {
-		d.render()
+	if r {
+		render(d)
 	}
 	return len(data), nil
 }
 
 func (d *repairDroid) Read(data []byte) (int, error) {
-	d.command = <-d.commandCh
+	if d.output != 2 {
+		d.command = <-d.commandCh
+	}
 	b := []byte(strconv.Itoa(d.command))
 	b = append(b, '\n')
 	return copy(data, b), nil
 }
 
-func (d *repairDroid) render() {
+func render(d *repairDroid) {
 	for y := 0; y <= 40; y++ {
 		for x := 0; x <= 40; x++ {
 			p := NewPoint2D(x-21, y-21)
@@ -257,12 +218,20 @@ func (d *repairDroid) render() {
 					}
 				case 2:
 					tb.SetCell(x, y, 'O', tb.ColorCyan, tb.ColorDefault)
+				case 3:
+					tb.SetCell(x, y, ' ', tb.ColorDefault, tb.ColorBlue)
 				}
 			}
 		}
 	}
-	tb.SetCell(d.position.X+21, d.position.Y+21, 'D', tb.ColorDefault, tb.ColorDefault)
-	print(0, 41, fmt.Sprintf("X: %2d, Y: %2d, Path: %3d", d.position.X+21, d.position.Y+21, len(path)))
+	if d != nil {
+		if theMap[*d.position] != 2 {
+			tb.SetCell(d.position.X+21, d.position.Y+21, 'D', tb.ColorDefault, tb.ColorDefault)
+		}
+		print(0, 41, fmt.Sprintf("X: %2d, Y: %2d, Path: %3d", d.position.X+21, d.position.Y+21, len(path)))
+	} else {
+		print(23, 41, fmt.Sprintf(", Minutes: %2d", minutes))
+	}
 	time.Sleep(25 * time.Millisecond)
 	tb.Flush()
 }
@@ -283,4 +252,31 @@ func print(x, y int, s string) {
 		tb.SetCell(x, y, r, tb.ColorDefault, c)
 		x++
 	}
+}
+
+func fillWithOxygen() {
+	start := NewPoint2D(35-21, 35-21)
+	waves := []Point2D{start}
+	for minutes = 0; len(waves) > 0; minutes++ {
+		var newWave []Point2D
+		for len(waves) > 0 {
+			w := waves[0]
+			theMap[w] = 3
+			waves = waves[1:]
+			newWave = append(newWave, findOutlets([]Point2D{NewPoint2D(w.X, w.Y-1), NewPoint2D(w.X-1, w.Y),
+				NewPoint2D(w.X, w.Y+1), NewPoint2D(w.X+1, w.Y)})...)
+		}
+		waves = newWave
+		render(nil)
+	}
+}
+
+func findOutlets(n []Point2D) []Point2D {
+	var outlets []Point2D
+	for _, p := range n {
+		if theMap[p] == 1 {
+			outlets = append(outlets, p)
+		}
+	}
+	return outlets
 }

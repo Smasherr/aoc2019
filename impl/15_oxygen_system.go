@@ -248,9 +248,13 @@ func pathContains(p *Point2D) bool {
 }
 func print(x, y int, s string) {
 	for _, r := range s {
-		c := tb.ColorDefault
-		tb.SetCell(x, y, r, tb.ColorDefault, c)
-		x++
+		if r == '\n' {
+			y++
+			x = 0
+		} else {
+			tb.SetCell(x, y, r, tb.ColorDefault, tb.ColorDefault)
+			x++
+		}
 	}
 }
 

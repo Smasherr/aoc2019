@@ -40,7 +40,17 @@ func (ic Intcomp) ProcessInstructions() []int {
 			ic.processParameterModes(step-1, i)
 			scanner := bufio.NewScanner(ic.in)
 			scanner.Scan()
-			ic.memory[ic.instruction[1]], _ = strconv.Atoi(scanner.Text())
+			text := scanner.Text()
+			if len(text) > 0 {
+				i, err := strconv.Atoi(text)
+				if err == nil {
+					ic.memory[ic.instruction[1]] = i
+				} else {
+					ic.memory[ic.instruction[1]] = int(text[0])
+				}
+			} else {
+				ic.memory[ic.instruction[1]] = 10
+			}
 		case 4:
 			step = 2
 			ic.processParameterModes(step-1, i)
